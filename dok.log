@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013/Debian) (format=latex 2015.3.22)  22 MAR 2015 19:39
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013/Debian) (format=latex 2015.3.22)  22 MAR 2015 21:13
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -306,12 +306,12 @@ LaTeX Font Info:    External font `cmex10' loaded for size
 [1
 
 ]
-Underfull \hbox (badness 10000) in paragraph at lines 52--53
+Underfull \hbox (badness 10000) in paragraph at lines 49--50
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 59--60
+Underfull \hbox (badness 10000) in paragraph at lines 56--57
 
  []
 
@@ -323,6 +323,6 @@ Here is how much of TeX's memory you used:
  4459 multiletter control sequences out of 15000+600000
  9368 words of font info for 29 fonts, out of 8000000 for 9000
  34 hyphenation exceptions out of 8191
- 23i,7n,23p,396b,187s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 23i,7n,23p,388b,187s stack positions out of 5000i,500n,10000p,200000b,80000s
 
-Output written on dok.dvi (2 pages, 4992 bytes).
+Output written on dok.dvi (2 pages, 4780 bytes).

@@ -23,12 +23,9 @@
 
 	Dopasowanie pary sekwencji wykonuje się przy założeniu, że są one homologiczne, tj. wyewoluowały od jednego przodka. Różnice w sekwencjach mogą być wynikiem mutacji (która mogła zajść zarówno w pierwszej, drugiej lub obu sekwencjach). Przerwy w sekwencjach sugerują zajście delecji lub insercji w jednej lub obu sekwencjach.
 
-	Afiniczna funkcja kary za przerwę jest najczęściej wykorzystywanym sposobem punktacji przerw. Kara za utworzenie nowej przerwy jest równa $g_{open}$, zaś kara za jednostkowe wydłużenie istniejącej przerwy wynosis $g_{ext}$. W tym wypadku całkowita kara za przerwę o długości $l$ wynosi \mbox{$W(l) = g_{open} + g_{ext}(l - 1)$}
+	Afiniczna funkcja kary za przerwę jest najczęściej wykorzystywanym sposobem punktacji przerw. Kara za utworzenie nowej przerwy jest równa $g_{open}$, zaś kara za jednostkowe wydłużenie istniejącej przerwy wynosis $g_{ext}$. Całkowita kara za przerwę o długości $l$ wynosi \mbox{$W(l) = g_{open} + g_{ext}(l - 1)$}
 
-	Całkowita ocena dopasowania sekwencji wynosi:
-	\[\sum S(\alpha, \beta) - \sum W(l) \]
-
-	Za stosowanie afinicznej kary za przerwę przemawia fakt, że insercje i delecje mają charakter blokowy, tj. jest większe prawdopodobieństwo wystąpienia jednej dużej przerwy, niż kilku mniejszych, znajdujących się nieodległym sąsiedztwie. Afiniczna funkcja kary za przerwę wydaje się być rozwiązaniem bardziej realistycznym niż liniowa funkcja kary za przerwę.
+	Za stosowanie afinicznej kary przemawia fakt, że insercje i delecje mają charakter blokowy, tj. istnieje większe prawdopodobieństwo wystąpienia jednej dużej przerwy, niż kilku mniejszych, znajdujących się nieodległym sąsiedztwie. Afiniczna funkcja kary za przerwę wydaje się być rozwiązaniem bardziej realistycznym niż liniowa funkcja kary za przerwę.
 
 	Implementacja algorytmu dopasowywania sekwencji z afiniczną karą za przerwę ma złożoność obliczeniową $O(mn)$, czyli taką samą jak algorytmy dopasowania globalnego i lokalnego z liniową funkcją kary za przerwę.
 
