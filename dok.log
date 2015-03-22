@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013/Debian) (format=latex 2015.3.22)  22 MAR 2015 15:28
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013/Debian) (format=latex 2015.3.22)  22 MAR 2015 18:22
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -294,21 +294,25 @@ LaTeX Font Info:    External font `cmex10' loaded for size
 LaTeX Font Info:    External font `cmex10' loaded for size
 (Font)              <6> on input line 17.
 
-Overfull \hbox (15.09789pt too wide) in paragraph at lines 20--21
+Underfull \hbox (badness 10000) in paragraph at lines 20--21
 \OT4/cmr/m/n/10 Dopasowywanie se-kwen-cji za po-moc¡ al-go-ryt-mów Go-toha oraz
- Altschula-Ericksona.
+
  []
 
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <7> on input line 26.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <5> on input line 26.
 [1
 
 ] (./dok.aux) ) 
 Here is how much of TeX's memory you used:
- 1207 strings out of 494994
- 12760 string characters out of 6180647
- 62969 words of memory out of 5000000
- 4456 multiletter control sequences out of 15000+600000
+ 1209 strings out of 494994
+ 12788 string characters out of 6180647
+ 63969 words of memory out of 5000000
+ 4458 multiletter control sequences out of 15000+600000
  8862 words of font info for 28 fonts, out of 8000000 for 9000
  34 hyphenation exceptions out of 8191
- 23i,6n,23p,361b,187s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 23i,6n,23p,366b,187s stack positions out of 5000i,500n,10000p,200000b,80000s
 
-Output written on dok.dvi (1 page, 1364 bytes).
+Output written on dok.dvi (1 page, 2964 bytes).

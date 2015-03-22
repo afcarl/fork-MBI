@@ -17,10 +17,19 @@
 	\maketitle
 	\section{Temat projektu}
 
-	Dopasowywanie sekwencji za pomocą algorytmów Gotoha oraz Altschula-Ericksona. Porównanie z inną dostępną implementacją (np. z pakietem Biostrings w języku R)
+	\indent Dopasowywanie sekwencji za pomocą algorytmów Gotoha oraz \linebreak\mbox{Altschula - Ericksona}. Porównanie z inną dostępną implementacją (np. z pakietem Biostrings w języku R)
 
 	\section{Dopasowanie pary sekwencji}
 
 	Dopasowanie pary sekwencji wykonuje się przy założeniu, że są one homologiczne, tj. wyewoluowały od jednego przodka. Różnice w sekwencjach mogą być wynikiem mutacji (która mogła zajść zarówno w pierwszej, drugiej lub obu sekwencjach). Przerwy w sekwencjach sugerują zajście delecji lub insercji w jednej lub obu sekwencjach.
+
+	Afiniczna funkcja kary za przerwę jest najczęściej wykorzystywanym sposobem punktacji przerw. Kara za utworzenie nowej przerwy jest równa $g_{open}$, zaś kara za jednostkowe wydłużenie istniejącej przerwy wynosis $g_{ext}$. W tym wypadku całkowita kara za przerwę o długości $l$ wynosi \mbox{$W(l) = g_{open} + g_{ext}(l - 1)$}
+
+	Całkowita ocena dopasowania sekwenci wynosi:
+	\[\sum S(\alpha, \beta) - \sum W(l) \]
+
+	Implementacja algorytmu dopasowywania sekwencji z afiniczną karą za przerwę ma złożoność obliczeniową $O(mn)$, czyli taką samą jak algorytmy dopasowania globalnego i lokalanego z liniową funkcją kary za przerwę.
+
+	Za stosowanie afinicznej kary za przerwę przemawia fakt, że insercje i delecje mają charakter blokowy, tj. jest większe prawdopodobieństwo wystąpienia jednej dużej przerwy, niż kilku mniejszych, znajdujących się nieodległym sąsiedztwie.
 
 \end{document}
