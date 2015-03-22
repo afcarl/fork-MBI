@@ -17,28 +17,37 @@
 	\maketitle
 	\section{Temat projektu}
 
-	\indent Dopasowywanie sekwencji za pomocą algorytmów Gotoha oraz \linebreak\mbox{Altschula - Ericksona}. Porównanie z inną dostępną implementacją (np. z pakietem Biostrings w języku R)
+	Dopasowywanie sekwencji za pomocą algorytmów Gotoha oraz \linebreak\mbox{Altschula - Ericksona}. Porównanie z inną dostępną implementacją (np. z pakietem Biostrings w języku R)
+
+	\section{Cel projektu}
+
+	Podstawowym zadaniem jest implementacja dwóch algorytmów służących do badania podobieństwa dwóch sekwencji np. nukleotydów: algorytmu Gotoha oraz \mbox{Altschula - Ericksona}. Oba korzystają z afinicznej funkcji kary za przerwę. Następnie, za pomocą zaimplementowanych algorytmów przeprowadzonych zostanie szereg prób uliniowienia dla sekwencji o różnych długościach. Dla każdej próby zostanie zmierzony czas w jakim algorytmy ukończyły dopasowanie. Na podstawie tych danych będziemy w stanie empirycznie zweryfikować zależność złożoności obliczeniowej zaimplementowanych algorytmów względem długości dopasowywanych sekwencji. Pomiary zostaną powtórzone dla jednego z istniejących pakietów umożliwijących dopasowywanie sekwencji parami, np. pakiet Biopython lub Biostrings. 
+
+	\section{Funkcjonaloność rozwiązania}
+
+	Projekt zostanie zrealizowany jako aplikacja konsolowa lub okienkowa z prostym GUI. Podstawowa funkcjonalność jaka powinna się w nim znaleźć to:
+	\begin{itemize}
+		\item Wczytanie oraz sparsowanie danych z pliku tekstowego lub podanych bezpośrednio przez użytkownika. Program pobierze dwie sekwencje nukleotydów oraz opcjonalnie wartości systemu punktacji dla identycznych pozycji, różnych pozycji oraz kar za rozpoczęcie i kontynuację przerwy.
+		\item Uliniowienie obu sekwencji za pomocą wybranego przez użytkownika algorytmu: wyznaczenie macierzy dopasowania oraz na ich podstawie najbardziej optymalnego dopasowania. 
+		\item Wydrukowanie na standardowe wyjście lub zapis do pliku wyniku dopasowania, z oznaczeniem przerw oraz zgodnych i niezgodnych par nukleotydów z obu sekwencji
+	\end{itemize}
 
 	\section{Dopasowanie pary sekwencji}
 
-	Dopasowanie pary sekwencji wykonuje się przy założeniu, że są one homologiczne, tj. wyewoluowały od jednego przodka. Różnice w sekwencjach mogą być wynikiem mutacji (która mogła zajść zarówno w pierwszej, drugiej lub obu sekwencjach). Przerwy w sekwencjach sugerują zajście delecji lub insercji w jednej lub obu sekwencjach.
+	Dopasowanie pary sekwencji wykonuje się przy założeniu, że są one homologiczne, tj. wyewoluowały od jednego przodka. Różnice na poszczególnych pozycjach w obu sekwencjach mogą być wynikiem mutacji. Przerwy w sekwencjach sugerują zajście delecji lub insercji w jednej lub w obu sekwencjach.
 
-	Afiniczna funkcja kary za przerwę jest najczęściej wykorzystywanym sposobem punktacji przerw. Kara za utworzenie nowej przerwy jest równa $g_{open}$, zaś kara za jednostkowe wydłużenie istniejącej przerwy wynosis $g_{ext}$. Całkowita kara za przerwę o długości $l$ wynosi \mbox{$W(l) = g_{open} + g_{ext}(l - 1)$}
+	Afiniczna funkcja kary za przerwę jest najczęściej wykorzystywanym sposobem punktacji przerw. Za je stosowaniem przemawia fakt, iż insercje i delecje mają charakter blokowy, tj. istnieje większe prawdopodobieństwo wystąpienia jednej dużej przerwy, niż kilku mniejszych, znajdujących się nieodległym sąsiedztwie.Kara za utworzenie nowej przerwy jest równa $g_{open}$, zaś kara za jednostkowe wydłużenie istniejącej przerwy wynosis $g_{ext}$. Całkowita kara za przerwę o długości $l$ wynosi \mbox{$W(l) = g_{open} + g_{ext}(l - 1)$}
 
-	Za stosowanie afinicznej kary przemawia fakt, że insercje i delecje mają charakter blokowy, tj. istnieje większe prawdopodobieństwo wystąpienia jednej dużej przerwy, niż kilku mniejszych, znajdujących się nieodległym sąsiedztwie. Afiniczna funkcja kary za przerwę wydaje się być rozwiązaniem bardziej realistycznym niż liniowa funkcja kary za przerwę.
-
-	Implementacja algorytmu dopasowywania sekwencji z afiniczną karą za przerwę ma złożoność obliczeniową $O(mn)$, czyli taką samą jak algorytmy dopasowania globalnego i lokalnego z liniową funkcją kary za przerwę.
-
-	W algorytmie Gotoha oprócz zdefiniowania macierzy najlepszego dopasowania $M_{i,j}$ (gdzie $i$ to ostatni pozycja dopasowania pierwszej sekwencji , a $j$ drugiej), konieczne jest również utworzenie w sumie 3 macierzy kosztu:
+	Algorytm Gotoha pozwala na znalezienie jednego, optymalnego dopasowania  pomiędzy dwiema sekwencjami. W algorytmie tym konieczne jest utworzenie w sumie 3 macierzy kosztu:
 	\begin{description}
 	\item[$M$]
-	 - najlepszego dopasowania, której elementy $M_{i,j}$ stanowią ocenę najlepszego dopasowania kończącego się na pozycjach $i$ i $j$ odpowiednio pierwszej sekwencji $a$ i drugiej sekwencji $b$,
+	 - elementy $M_{i,j}$ tej macierzy, stanowią ocenę najlepszego dopasowania kończącego się na pozycjach $i$ i $j$ odpowiednio pierwszej sekwencji $a$ i drugiej sekwencji $b$,
 	\item[$I$]
-	 - najlepszego dopasowania zakończonego delecją (dopasowanie kończy się na $a_i$ w pierwszej sekwencji oraz znakiem przerwy w drugiej),
+	 - macierz najlepszego dopasowania zakończonego delecją (dopasowanie kończy się na $a_i$ w pierwszej sekwencji oraz znakiem przerwy w drugiej),
 	\item[$J$]
-	 - najlepszego dopasowania zakończonego insercją (dopasowanie kończy się znakiem przerwy w pierwszej sekwencji oraz resztą $b_j$ w drugiej).
+	 - macierz najlepszego dopasowania zakończonego insercją (dopasowanie kończy się znakiem przerwy w pierwszej sekwencji oraz resztą $b_j$ w drugiej).
 	\end{description}
-	Zależności rekurencyjne dla wymienionych powyżej macierzy możemy przedstawić następująco:
+	Zależności rekurencyjne dla wymienionych powyżej macierzy można przedstawić następująco:
 	\[
 		M_{i,j} = max \left\{
 			\begin{array}{ll}
@@ -61,4 +70,14 @@
 				J_{i, j-1} - g_{ext}\\
 			\end{array} \right.
 	\]
+
+	
+	Algorytm zaimplementowany przy wykorzystaniu programowania dynamicznego ma złożoność obliczeniową $O(mn)$, czyli taką samą jak algorytmy dopasowania z liniową funkcją kary za przerwę. Ponieważ wykorzystuje on dodatkowo dwie macierze $I$ oraz $J$, złożoność pamięciowa jest trzykrotnie wyższa w porównaniu do algorytmów stosujących liniową funkcję kary.
+	\section{Testowanie}
+
+	Testowanie gotowego rozwiązania będzie składało się z dwóch części:
+	\begin{enumerate}
+		\item Testów wydajnościowych: ich celem będzie sprawdzenie czasów wykonania obu algorytmów dla sekwencji o różnej długości. Uzyskane czasy pozwolą na empiryczne oszacowanie złożoności czasowej algorytmów oraz porównanie ich z czasami wykonania dostępnych imolementacji.
+		\item Testów poprawnościowych: ich celem będzie weryfikacja, czy oba algorytmy prawidłowo dopasowują obie sekwencje tj. wykrywają zarówno mutacje, jak i insercje oraz delecje. W tym celu przetestujemy ich działanie na parach sekwencji, w których druga będzie zmodyfikowaną o mutacje oraz delecje i insercje wersją pierwszej.
+	\end{enumerate}
 \end{document}
