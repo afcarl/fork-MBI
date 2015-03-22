@@ -46,8 +46,8 @@
 		M_{i,j} = max \left\{
 			\begin{array}{ll}
 				M_{i-1, j-1} + S(a_i, b_j)\\
-				I_{i-1, j-1} + S(a_i, b_j)\\
-				J_{i-1, j-1} + S(a_i, b_j)\\
+				I_{i, }\\
+				J_{i, }\\
 			\end{array} \right.
 	\]\\
 	\[
@@ -58,10 +58,10 @@
 			\end{array} \right.
 	\]\\
 	\[
-		I_{i,j} = max \left\{
+		J_{i,j} = max \left\{
 			\begin{array}{ll}
 				M_{i, j-1} - g_{open}\\
-				I_{i, j-1} - g_{ext}\\
+				J_{i, j-1} - g_{ext}\\
 			\end{array} \right.
 	\]
 \end{document}
