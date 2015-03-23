@@ -12,7 +12,7 @@
 	\maketitle
 	\section{Temat projektu}
 
-	Dopasowywanie sekwencji za pomocą algorytmów Gotoha oraz \linebreak\mbox{Altschula - Ericksona}. Porównanie z inną dostępną implementacją (np. z pakietem Biostrings w języku R).
+	Dopasowywanie sekwencji za pomocą algorytmów Gotoha oraz \linebreak\mbox{Altschula - Ericksona}. Porównanie z inną dostępną implementacją (np. z pakietem Biostrings w języku R)
 
 	\section{Cel projektu}
 
@@ -20,7 +20,7 @@
 
 	Następnie, za pomocą zaimplementowanych algorytmów przeprowadzonych zostanie szereg prób uliniowienia dla sekwencji o różnych długościach. Dla każdej próby zostanie zmierzony czas w jakim dopasowanie zostało ukończone. Na tej podstawie będziemy w stanie empirycznie zweryfikować zależność złożoności obliczeniowej algorytmów względem długości dopasowywanych sekwencji. 
 
-	Pomiary czasów wykonania zostaną powtórzone dla jednego z istniejących pakietów umożliwiających dopasowywanie sekwencji parami, np. pakietu \mbox{Biopython}~\cite{biopython} lub Biostrings~\cite{biostrings}. Pozwoli to na porównanie względnej złożoności czasowej naszej implementacji z rozwiązaniami gotowymi. 
+	Pomiary czasów wykonania zostaną powtórzone dla jednego z istniejących pakietów umożliwiających dopasowywanie sekwencji parami, np. pakietu Biopython~\cite{biopython} lub Biostrings~\cite{biostrings}. Pozwoli to na porównanie względnej złożoności czasowej naszej implementacji z rozwiązaniami gotowymi. 
 
 	\section{Funkcjonalność rozwiązania}
 
@@ -73,7 +73,7 @@
 	\]
 
 	
-	Oda algorytmy, zaimplementowane przy wykorzystaniu programowania dynamicznego, mają złożoność obliczeniową $O(mn)$, czyli taką samą jak ich odpowiedniki liniową funkcją kary za przerwę. Ponieważ wykorzystują one dodatkowo dwie macierze $I$ oraz $J$, złożoność pamięciowa jest trzykrotnie wyższa w porównaniu do algorytmów stosujących liniową funkcję kary.
+	Algorytmy zaimplementowany przy wykorzystaniu programowania dynamicznego mają złożoność obliczeniową $O(mn)$, czyli taką samą jak algorytmy dopasowania z liniową funkcją kary za przerwę. Ponieważ wykorzystują one dodatkowo dwie macierze $I$ oraz $J$, złożoność pamięciowa jest trzykrotnie wyższa w porównaniu do algorytmów stosujących liniową funkcję kary.
 
 	\section{Testowanie}
 
@@ -89,6 +89,6 @@
 		\bibitem{biopython} http://biopython.org
 		\bibitem{biostrings} http://master.bioconductor.org/packages/release/bioc/html/Biostrings.html
 		\bibitem{gotoh} http://www.cs.unibo.it/~dilena/LabBII/Papers/AffineGaps.pdf
-		\bibitem{ae} http://link.springer.com/article/10.1007\%2FBF02462326
+		\bibitem{ae} http://link.springer.com/article/10.1007%2FBF02462326
 	\end{thebibliography}
 \end{document}
