@@ -20,9 +20,9 @@
 
 	Następnie, za pomocą zaimplementowanych algorytmów przeprowadzonych zostanie szereg prób uliniowienia dla sekwencji o różnych długościach. Dla każdej próby zostanie zmierzony czas w jakim dopasowanie zostało ukończone. Na tej podstawie będziemy w stanie empirycznie zweryfikować zależność złożoności obliczeniowej algorytmów względem długości dopasowywanych sekwencji. 
 
-	Pomiary czasów wykonania zostaną powtórzone dla jednego z istniejących pakietów umożliwijących dopasowywanie sekwencji parami, np. pakietu Biopython~\cite{biopython} lub Biostrings~\cite{biostrings}. Pozwoli to na porównanie względnej złożoności czasowej naszej implementacji z rozwiązaniami gotowymi. 
+	Pomiary czasów wykonania zostaną powtórzone dla jednego z istniejących pakietów umożliwiających dopasowywanie sekwencji parami, np. pakietu Biopython~\cite{biopython} lub Biostrings~\cite{biostrings}. Pozwoli to na porównanie względnej złożoności czasowej naszej implementacji z rozwiązaniami gotowymi. 
 
-	\section{Funkcjonaloność rozwiązania}
+	\section{Funkcjonalność rozwiązania}
 
 	Projekt zostanie zrealizowany jako aplikacja konsolowa lub okienkowa z prostym GUI. Podstawowa funkcjonalność jaka powinna się w nim znaleźć to:
 	\begin{itemize}
@@ -35,7 +35,7 @@
 
 	Dopasowanie pary sekwencji wykonuje się przy założeniu, że są one homologiczne, tj. wyewoluowały od jednego przodka. Różnice na poszczególnych pozycjach w obu sekwencjach mogą być wynikiem mutacji. Przerwy w sekwencjach sugerują zajście delecji lub insercji w jednej lub w obu sekwencjach.
 
-	Afiniczna funkcja kary za przerwę jest najczęściej wykorzystywanym sposobem punktacji przerw. Za je stosowaniem przemawia fakt, iż insercje i delecje mają charakter blokowy, tj. istnieje większe prawdopodobieństwo wystąpienia jednej dużej przerwy, niż kilku mniejszych, znajdujących się nieodległym sąsiedztwie.Kara za utworzenie nowej przerwy jest równa $g_{open}$, zaś kara za jednostkowe wydłużenie istniejącej przerwy wynosis $g_{ext}$. Całkowita kara za przerwę o długości $l$ wynosi \mbox{$W(l) = g_{open} + g_{ext}(l - 1)$}
+	Afiniczna funkcja kary za przerwę jest najczęściej wykorzystywanym sposobem punktacji przerw. Za je stosowaniem przemawia fakt, iż insercje i delecje mają charakter blokowy, tj. istnieje większe prawdopodobieństwo wystąpienia jednej dużej przerwy, niż kilku mniejszych, znajdujących się nieodległym sąsiedztwie.Kara za utworzenie nowej przerwy jest równa $g_{open}$, zaś kara za jednostkowe wydłużenie istniejącej przerwy wynosi $g_{ext}$. Całkowita kara za przerwę o długości $l$ wynosi \mbox{$W(l) = g_{open} + g_{ext}(l - 1)$}
 
 	Algorytm Gotoha~\cite{gotoh} pozwala na znalezienie jednego, optymalnego dopasowania  pomiędzy dwiema sekwencjami. W algorytmie tym konieczne jest utworzenie w sumie 3 macierzy kosztu:
 	\begin{description}
@@ -77,7 +77,7 @@
 
 	Testowanie gotowego rozwiązania będzie składało się z dwóch części:
 	\begin{enumerate}
-		\item Testów wydajnościowych: ich celem będzie sprawdzenie czasów wykonania obu algorytmów dla sekwencji o różnej długości. Uzyskane czasy pozwolą na empiryczne oszacowanie złożoności czasowej algorytmów oraz porównanie ich z czasami wykonania dostępnych imolementacji.
+		\item Testów wydajnościowych: ich celem będzie sprawdzenie czasów wykonania obu algorytmów dla sekwencji o różnej długości. Uzyskane czasy pozwolą na empiryczne oszacowanie złożoności czasowej algorytmów oraz porównanie ich z czasami wykonania dostępnych implementacji.
 		\item Testów poprawnościowych: ich celem będzie weryfikacja, czy oba algorytmy prawidłowo dopasowują obie sekwencje tj. wykrywają zarówno mutacje, jak i insercje oraz delecje. W tym celu przetestujemy ich działanie na parach sekwencji, w których druga będzie zmodyfikowaną o mutacje oraz delecje i insercje wersją pierwszej.
 	\end{enumerate}
 
