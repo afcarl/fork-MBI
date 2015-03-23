@@ -37,7 +37,7 @@
 
 	Afiniczna funkcja kary za przerwę jest najczęściej wykorzystywanym sposobem punktacji przerw. Za je stosowaniem przemawia fakt, iż insercje i delecje mają charakter blokowy, tj. istnieje większe prawdopodobieństwo wystąpienia jednej dużej przerwy, niż kilku mniejszych, znajdujących się nieodległym sąsiedztwie.Kara za utworzenie nowej przerwy jest równa $g_{open}$, zaś kara za jednostkowe wydłużenie istniejącej przerwy wynosis $g_{ext}$. Całkowita kara za przerwę o długości $l$ wynosi \mbox{$W(l) = g_{open} + g_{ext}(l - 1)$}
 
-	Algorytm Gotoha ~\cite{gotoh} pozwala na znalezienie jednego, optymalnego dopasowania  pomiędzy dwiema sekwencjami. W algorytmie tym konieczne jest utworzenie w sumie 3 macierzy kosztu:
+	Algorytm Gotoha~\cite{gotoh} pozwala na znalezienie jednego, optymalnego dopasowania  pomiędzy dwiema sekwencjami. W algorytmie tym konieczne jest utworzenie w sumie 3 macierzy kosztu:
 	\begin{description}
 	\item[$M$]
 	 - elementy $M_{i,j}$ tej macierzy, stanowią ocenę najlepszego dopasowania kończącego się na pozycjach $i$ i $j$ odpowiednio pierwszej sekwencji $a$ i drugiej sekwencji $b$,
@@ -82,9 +82,10 @@
 	\end{enumerate}
 
 	\section{Odnośniki}
-	
+
 	\begin{thebibliography}{99}
 		\bibitem{biopython} http://biopython.org
 		\bibitem{biostrings} http://master.bioconductor.org/packages/release/bioc/html/Biostrings.html
+		\bibitem{gotoh} http://www.cs.unibo.it/~dilena/LabBII/Papers/AffineGaps.pdf
 	\end{thebibliography}
 \end{document}
