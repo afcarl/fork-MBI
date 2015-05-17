@@ -13,6 +13,7 @@ algorithms for sequence alignment.
 
 Usage:
     aligner.py [options] <first-sequence> <second-sequence>
+    aligner.py [options] -i <first-sequence-file> <second-sequence-file>
 
 Arguments:
     first-sequence   Text sequence used for pairwise comparison.
@@ -22,6 +23,8 @@ Options:
     -h --help
     --version
 
+    -i                         Loads sequences from files.
+    -o FILE --output=FILE      Saves result to FILE.
     -m METHOD --method=METHOD  Selects one of the implemented alignment algorithms [default: NW]:
                                    NW - Needleman-Wunsch,
                                    SW - Smith-Waterman,
@@ -36,6 +39,7 @@ Options:
 
 from docopt import docopt
 import numpy as np
+
 
 class UnknownAlgorithmError(Exception):
     pass
@@ -167,9 +171,21 @@ def align(A, B, method=None, penalties=None):
 if __name__ == '__main__':
     arguments = docopt(__doc__, help=True, version='Projekt / Metody Bioinformatyki - 2015-05-16', options_first=True)
 
-    A, B = (arguments['<first-sequence>'], arguments['<second-sequence>'])
-    if not (isinstance(A, basestring) and isinstance(B, basestring)):
-        raise ParameterError('Sequence provided is not a string.')
+    if arguments['-i']:
+        A_file, B_file = (arguments['<first-sequence-file>'], arguments['<second-sequence-file>'])
+        try:
+            with open(A_file, 'r') as sequence_file:
+                A = sequence_file.read()
+            with open(B_file, 'r') as sequence_file:
+                B = sequence_file.read()
+            if not len(A) or not len(B):
+                raise ParameterError('Failed loading sequence files.')
+        except:
+            raise ParameterError('Failed loading sequence files.')
+    else:
+        A, B = (arguments['<first-sequence>'], arguments['<second-sequence>'])
+        if not (isinstance(A, basestring) and isinstance(B, basestring)):
+            raise ParameterError('Sequence provided is not a string.')
 
     method = arguments['--method']
     if method not in ['NW', 'SW', 'G', 'AE', None]:
@@ -183,5 +199,12 @@ if __name__ == '__main__':
 
     score, result_A, result_B = align(A, B, method, penalties)
 
-    print 'Score:\n%d' % score
-    print '\nAligned sequences:\n', result_A, '\n', result_B
+    if arguments['--output'] is not None:
+        try:
+            with open(arguments['--output'], 'w') as output_file:
+                output_file.write('score;first-sequence;second-sequence\n%d;%s;%s' % (score, result_A, result_B))
+        except:
+            raise ParameterError('Failed saving results to file.')
+    else:
+        print 'Score:\n%d' % score
+        print '\nAligned sequences:\n', result_A, '\n', result_B

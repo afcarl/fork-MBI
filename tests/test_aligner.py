@@ -5,6 +5,8 @@ import unittest
 import numpy as np
 import time
 import subprocess
+import os
+import string
 from src import aligner
 
 class TestAligner(unittest.TestCase):
@@ -158,9 +160,6 @@ class TestAligner(unittest.TestCase):
         self.assertEqual(score, 0)
         self.assertIn((A, B), [('GCATG-CU', 'G-ATTACA'), ('GCA-TGCU', 'G-ATTACA'), ('GCAT-GCU', 'G-ATTACA')]) # Accept one of possible variants
 
-    def test_CLI_should_accept_sequences_from_files(self):
-        raise NotImplementedError()
-
     def test_CLI_should_accept_custom_penalties(self):
         score, A, B = self._parse_CLI_output(self._run_CLI('--match=10 --mismatch=-1 --indel=-1 GCATGCU GCATGCU')) # 7 matches
         self.assertEqual(score, 70)
@@ -171,8 +170,36 @@ class TestAligner(unittest.TestCase):
         score, A, B = self._parse_CLI_output(self._run_CLI('--match=0 --mismatch=-10 --indel=-4 GCTGCU GCATGC')) # 2 deletions
         self.assertEqual(score, -8)
 
+    def test_CLI_should_accept_sequences_from_files(self):
+        tmp_dir = '_tmp_' + ''.join(np.random.choice(list(string.ascii_uppercase + string.digits)) for _ in range(8))
+        try:
+            os.mkdir(tmp_dir)
+            with open('{}/A.txt'.format(tmp_dir), 'w') as sequence_file:
+                sequence_file.write('GCATGCU')
+            with open('{}/B.txt'.format(tmp_dir), 'w') as sequence_file:
+                sequence_file.write('GATTACA')
+
+            score, A, B = self._parse_CLI_output(self._run_CLI('-i {0}/A.txt {0}/B.txt'.format(tmp_dir)))
+            self.assertEqual(score, 0)
+            self.assertIn((A, B), [('GCATG-CU', 'G-ATTACA'), ('GCA-TGCU', 'G-ATTACA'), ('GCAT-GCU', 'G-ATTACA')]) # Accept one of possible variants
+        finally:
+            os.unlink('{}/A.txt'.format(tmp_dir))
+            os.unlink('{}/B.txt'.format(tmp_dir))
+            os.rmdir(tmp_dir)
+
     def test_CLI_should_save_result_to_file(self):
-        raise NotImplementedError()
+        tmp_dir = '_tmp_' + ''.join(np.random.choice(list(string.ascii_uppercase + string.digits)) for _ in range(8))
+        try:
+            os.mkdir(tmp_dir)
+            self._run_CLI('-o {}/results.csv GCATGCU GATTACA'.format(tmp_dir))
+            with open('{}/results.csv'.format(tmp_dir), 'r') as output_file:
+                score, A, B = output_file.read().split('\n')[1].split(';')
+
+            self.assertEqual(int(score), 0)
+            self.assertIn((A, B), [('GCATG-CU', 'G-ATTACA'), ('GCA-TGCU', 'G-ATTACA'), ('GCAT-GCU', 'G-ATTACA')]) # Accept one of possible variants
+        finally:
+            os.unlink('{}/results.csv'.format(tmp_dir))
+            os.rmdir(tmp_dir)
 
     def test_CLI_should_provide_different_algorithms(self):
         raise NotImplementedError()
