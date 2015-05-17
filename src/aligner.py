@@ -28,6 +28,10 @@ Options:
                                    G  - Gotoh,
                                    AE - Altschul-Erickson.
 
+    --match=PENALTY     Score for matching letters [default: 1].
+    --mismatch=PENALTY  Score for different letters [default: -1].
+    --indel=PENALTY     Score for INsertion/DELetion (gap) [default: -1].
+
 """
 
 from docopt import docopt
@@ -59,7 +63,9 @@ def align_nw(A, B, penalties):
 
     # Initialize first row/column scores
     score[0, :, 0] = range(0, -len(col_idx), -1)
+    score[0, :, 1] = 1
     score[:, 0, 0] = range(0, -len(row_idx), -1)
+    score[:, 0, 3] = 1
 
     # Fill table with scores and arrows
     def fill_cell(r, c):
@@ -160,4 +166,22 @@ def align(A, B, method=None, penalties=None):
 
 if __name__ == '__main__':
     arguments = docopt(__doc__, help=True, version='Projekt / Metody Bioinformatyki - 2015-05-16', options_first=True)
-    print(arguments)
+
+    A, B = (arguments['<first-sequence>'], arguments['<second-sequence>'])
+    if not (isinstance(A, basestring) and isinstance(B, basestring)):
+        raise ParameterError('Sequence provided is not a string.')
+
+    method = arguments['--method']
+    if method not in ['NW', 'SW', 'G', 'AE', None]:
+        raise UnknownAlgorithmError('Unrecognized algorithm selection.')
+
+    penalties = {
+        'match': int(arguments['--match']),
+        'mismatch': int(arguments['--mismatch']),
+        'indel': int(arguments['--indel'])
+    }
+
+    score, result_A, result_B = align(A, B, method, penalties)
+
+    print 'Score:\n%d' % score
+    print '\nAligned sequences:\n', result_A, '\n', result_B
