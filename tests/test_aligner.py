@@ -32,7 +32,17 @@ class TestAligner(unittest.TestCase):
         raise NotImplementedError()
 
     def test_aligner_should_provide_Gotoh_algorithm(self):
-        raise NotImplementedError()
+        score, A, B = aligner.align('ACACACTA', 'AGCACACA', 'GL', {'match': 2, 'mismatch': -1, 'indel': -1})
+        self.assertEqual(score, 12)
+        self.assertIn((A, B), [('A-CACACTA', 'AGCACAC-A')])
+
+        score, A, B = aligner.align('CGTGAATTCAT', 'GACTTAC', 'GL', {'match': 5, 'mismatch': -3, 'indel': -4})
+        self.assertEqual(score, 18)
+        self.assertIn((A, B), [('GAATTCA', 'GACTT-A'), ('GAATT-C', 'GACTTAC')])
+
+        score, A, B = aligner.align('CGGTCATAC', 'CGGAT', 'GG', {'match': 1, 'mismatch': -1, 'indel': -1, 'gap_opening': -5})
+        self.assertEqual(score, -5)
+        self.assertIn((A, B), [('CGGTCATAC', 'CGG----AT')])
 
     def test_aligner_should_raise_UnknownAlgorithmError_on_call_with_unknown_method(self):
         with self.assertRaises(aligner.UnknownAlgorithmError):
