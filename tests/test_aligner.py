@@ -9,6 +9,7 @@ import os
 import string
 from src import aligner
 
+
 class TestAligner(unittest.TestCase):
     """Various tests for correctness of the underlying implementation."""
 
@@ -18,29 +19,20 @@ class TestAligner(unittest.TestCase):
     def _generate_random_sequence(self, length, alphabet):
         return list((np.random.choice(alphabet) for _ in range(length)))
 
-    def test_aligner_should_provide_Needleman_Wunsch_algorithm(self):
-        self.test_aligner_should_work_on_Wikipedia_examples(method='NW')
-        self.test_aligner_should_detect_mutations(method='NW')
-        self.test_aligner_should_detect_insertions(method='NW')
-        self.test_aligner_should_detect_deletions(method='NW')
-
     def test_aligner_should_provide_Smith_Waterman_algorithm(self):
-        self.test_aligner_should_work_on_Wikipedia_examples(method='SW')
-        self.test_aligner_should_detect_mutations(method='SW')
-        self.test_aligner_should_detect_insertions(method='SW')
-        self.test_aligner_should_detect_deletions(method='SW')
+        score, A, B = aligner.align('ACACACTA', 'AGCACACA', 'SW', {'match': 2, 'mismatch': -1, 'indel': -1})
+        self.assertEqual(score, 12)
+        self.assertIn((A, B), [('A-CACACTA', 'AGCACAC-A')])
+
+        score, A, B = aligner.align('CGTGAATTCAT', 'GACTTAC', 'SW', {'match': 5, 'mismatch': -3, 'indel': -4})
+        self.assertEqual(score, 18)
+        self.assertIn((A, B), [('GAATTCA', 'GACTT-A'), ('GAATT-C', 'GACTTAC')])
 
     def test_aligner_should_provide_Altschul_Erickson_algorithm(self):
-        self.test_aligner_should_work_on_Wikipedia_examples(method='AE')
-        self.test_aligner_should_detect_mutations(method='AE')
-        self.test_aligner_should_detect_insertions(method='AE')
-        self.test_aligner_should_detect_deletions(method='AE')
+        raise NotImplementedError()
 
     def test_aligner_should_provide_Gotoh_algorithm(self):
-        self.test_aligner_should_work_on_Wikipedia_examples(method='G')
-        self.test_aligner_should_detect_mutations(method='G')
-        self.test_aligner_should_detect_insertions(method='G')
-        self.test_aligner_should_detect_deletions(method='G')
+        raise NotImplementedError()
 
     def test_aligner_should_raise_UnknownAlgorithmError_on_call_with_unknown_method(self):
         with self.assertRaises(aligner.UnknownAlgorithmError):
@@ -56,13 +48,12 @@ class TestAligner(unittest.TestCase):
         score, A, B = aligner.align('GCTGCU', 'GCATGC', None, {'match': 0, 'mismatch': -10, 'indel': -4}) # 2 deletions
         self.assertEqual(score, -8)
 
-
-    def test_aligner_should_work_on_Wikipedia_examples(self, method=None):
-        score, A, B = aligner.align('GCATGCU', 'GATTACA', method)
+    def test_aligner_should_work_on_Wikipedia_examples(self):
+        score, A, B = aligner.align('GCATGCU', 'GATTACA', None)
         self.assertEqual(score, 0)
         self.assertIn((A, B), [('GCATG-CU', 'G-ATTACA'), ('GCA-TGCU', 'G-ATTACA'), ('GCAT-GCU', 'G-ATTACA')]) # Accept one of possible variants
 
-    def test_aligner_should_detect_mutations(self, method=None, sequence_length=100):
+    def test_aligner_should_detect_mutations(self, sequence_length=100):
         alphabet = ['A', 'C', 'G', 'T']
 
         A = self._generate_random_sequence(sequence_length, alphabet)
@@ -76,13 +67,13 @@ class TestAligner(unittest.TestCase):
                     mutation_count = mutation_count + 1
                     B[i] = mutation
 
-        score, _, _ = aligner.align(''.join(A), ''.join(A), method)
+        score, _, _ = aligner.align(''.join(A), ''.join(A), None)
         self.assertEqual(score, sequence_length)
 
-        score, _, _ = aligner.align(''.join(A), ''.join(B), method, {'match': 1, 'mismatch': -1, 'indel': -10})
+        score, _, _ = aligner.align(''.join(A), ''.join(B), None, {'match': 1, 'mismatch': -1, 'indel': -10})
         self.assertEqual(score, sequence_length + mutation_count * -2)
 
-    def test_aligner_should_detect_deletions(self, method=None, sequence_length=100):
+    def test_aligner_should_detect_deletions(self, sequence_length=100):
         alphabet = ['A', 'C', 'G', 'T']
 
         A = self._generate_random_sequence(sequence_length, alphabet)
@@ -95,13 +86,13 @@ class TestAligner(unittest.TestCase):
             else:
                 B.append(A[i])
 
-        score, _, _ = aligner.align(''.join(A), ''.join(A), method)
+        score, _, _ = aligner.align(''.join(A), ''.join(A), None)
         self.assertEqual(score, sequence_length)
 
-        score, _, _ = aligner.align(''.join(A), ''.join(B), method, {'match': 1, 'mismatch': -100, 'indel': -1})
+        score, _, _ = aligner.align(''.join(A), ''.join(B), None, {'match': 1, 'mismatch': -100, 'indel': -1})
         self.assertEqual(score, sequence_length + deletion_count * -2)
 
-    def test_aligner_should_detect_insertions(self, method=None, sequence_length=100):
+    def test_aligner_should_detect_insertions(self, sequence_length=100):
         alphabet = ['A', 'C', 'G', 'T']
 
         A = self._generate_random_sequence(sequence_length, alphabet)
@@ -114,10 +105,10 @@ class TestAligner(unittest.TestCase):
                 insertion_count = insertion_count + 1
                 B.append(alphabet[np.random.randint(len(alphabet))])
 
-        score, _, _ = aligner.align(''.join(A), ''.join(A), method)
+        score, _, _ = aligner.align(''.join(A), ''.join(A), None)
         self.assertEqual(score, sequence_length)
 
-        score, _, _ = aligner.align(''.join(A), ''.join(B), method, {'match': 1, 'mismatch': -100, 'indel': -1})
+        score, _, _ = aligner.align(''.join(A), ''.join(B), None, {'match': 1, 'mismatch': -100, 'indel': -1})
         self.assertEqual(score, sequence_length + insertion_count + insertion_count * -2) # Insertions also increase total sequence length
 
     @unittest.skip('Skipping long tests.')

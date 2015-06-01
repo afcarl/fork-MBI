@@ -50,7 +50,7 @@ class ParameterError(Exception):
 
 
 def align_nw(A, B, penalties):
-    """Align sequence pair using Needleman-Wunsch algorithm."""
+    """Global align sequence pair using Needleman-Wunsch algorithm."""
 
     result_A = []
     result_B = []
@@ -122,8 +122,68 @@ def align_nw(A, B, penalties):
 
 
 def align_sw(A, B, penalties):
-    """Align sequence pair using Smith-Waterman algorithm."""
-    raise NotImplementedError()
+    """Local align sequence pair using Smith-Waterman algorithm."""
+
+    result_A = []
+    result_B = []
+
+    # Top row/left column (headers)
+    col_idx = ' ' + A
+    row_idx = ' ' + B
+
+    # Create a 3D score matrix with following axes:
+    #   - rows
+    #   - columns
+    #   - cell values holder: [cell score, left arrow, diagonal arrow, top arrow]
+    score = np.zeros((len(row_idx), len(col_idx), 4))
+
+    # Fill table with scores and arrows
+    def fill_cell(r, c):
+        alignment_penalty = penalties['match'] if col_idx[c] == row_idx[r] else penalties['mismatch']
+        diag = score[r - 1, c - 1, 0] + alignment_penalty
+        left = score[r, c - 1, 0] + penalties['indel']
+        top = score[r - 1, c, 0] + penalties['indel']
+
+        max_score = max([diag, left, top, 0])
+        score[r, c, 0] = max_score
+
+        score[r, c, 1] = 1 if left == score[r, c, 0] else 0
+        score[r, c, 2] = 1 if diag == score[r, c, 0] else 0
+        score[r, c, 3] = 1 if top == score[r, c, 0] else 0
+
+    for row in range(1, len(row_idx)):
+        for col in range(1, len(col_idx)):
+            fill_cell(row, col)
+
+    # Trace arrows back to origin cell
+    def trace_cell(r, c):
+        A_letter = col_idx[c]
+        B_letter = row_idx[r]
+
+        if score[r, c, 1]: # horizontal arrow
+            result_A.insert(0, A_letter)
+            result_B.insert(0, '-')
+            return r, c -1
+
+        if score[r, c, 2]: # diagonal arrow
+            result_A.insert(0, A_letter)
+            result_B.insert(0, B_letter)
+            return r - 1, c - 1
+
+        if score[r, c, 3]: # vertical arrow
+            result_A.insert(0, '-')
+            result_B.insert(0, B_letter)
+            return r - 1, c
+
+    row, col = np.unravel_index(score[:, :, 0].argmax(), np.shape(score[:, :, 0]))
+    final_score = score[row, col, 0]
+
+    while True:
+        row, col = trace_cell(row, col)
+        if score[row, col, 0] == 0:
+            break
+
+    return final_score, ''.join(result_A), ''.join(result_B)
 
 
 def align_g(A, B, penalties):
@@ -184,12 +244,8 @@ if __name__ == '__main__':
             raise ParameterError('Failed loading sequence files.')
     else:
         A, B = (arguments['<first-sequence>'], arguments['<second-sequence>'])
-        if not (isinstance(A, basestring) and isinstance(B, basestring)):
-            raise ParameterError('Sequence provided is not a string.')
 
     method = arguments['--method']
-    if method not in ['NW', 'SW', 'G', 'AE', None]:
-        raise UnknownAlgorithmError('Unrecognized algorithm selection.')
 
     penalties = {
         'match': int(arguments['--match']),
