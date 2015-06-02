@@ -7,6 +7,8 @@ import time
 import subprocess
 import os
 import string
+import shlex
+
 from src import aligner
 
 
@@ -147,7 +149,7 @@ class TestAligner(unittest.TestCase):
         raise NotImplementedError()
 
     def _run_CLI(self, args):
-        return subprocess.check_output('python ../src/aligner.py ' + args, stderr=subprocess.STDOUT)
+        return subprocess.check_output(shlex.split('python ../src/aligner.py ' + args), stderr=subprocess.STDOUT)
 
     def _parse_CLI_output(self, out):
         out = out.split('\n')
@@ -184,8 +186,11 @@ class TestAligner(unittest.TestCase):
             self.assertEqual(score, 0)
             self.assertIn((A, B), [('GCATG-CU', 'G-ATTACA'), ('GCA-TGCU', 'G-ATTACA'), ('GCAT-GCU', 'G-ATTACA')]) # Accept one of possible variants
         finally:
-            os.unlink('{}/A.txt'.format(tmp_dir))
-            os.unlink('{}/B.txt'.format(tmp_dir))
+            try:
+                os.unlink('{}/A.txt'.format(tmp_dir))
+                os.unlink('{}/B.txt'.format(tmp_dir))
+            except OSError:
+                pass
             os.rmdir(tmp_dir)
 
     def test_CLI_should_save_result_to_file(self):
@@ -199,7 +204,10 @@ class TestAligner(unittest.TestCase):
             self.assertEqual(int(score), 0)
             self.assertIn((A, B), [('GCATG-CU', 'G-ATTACA'), ('GCA-TGCU', 'G-ATTACA'), ('GCAT-GCU', 'G-ATTACA')]) # Accept one of possible variants
         finally:
-            os.unlink('{}/results.csv'.format(tmp_dir))
+            try:
+                os.unlink('{}/results.csv'.format(tmp_dir))
+            except OSError:
+                pass
             os.rmdir(tmp_dir)
 
     def test_CLI_should_provide_different_algorithms(self):
