@@ -8,6 +8,7 @@ import subprocess
 import os
 import string
 import shlex
+import sys
 
 from src import aligner
 
@@ -149,7 +150,7 @@ class TestAligner(unittest.TestCase):
         raise NotImplementedError()
 
     def _run_CLI(self, args):
-        return subprocess.check_output(shlex.split('python ../src/aligner.py ' + args), stderr=subprocess.STDOUT)
+        return subprocess.check_output([sys.executable] + shlex.split('../src/aligner.py ' + args), stderr=subprocess.STDOUT, env=os.environ.copy())
 
     def _parse_CLI_output(self, out):
         out = out.split('\n')
