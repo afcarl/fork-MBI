@@ -128,17 +128,17 @@ class TestAligner(unittest.TestCase):
         start = time.time()
         self.test_aligner_should_detect_mutations(sequence_length=1000)
         total = time.time() - start
-        self.assertLess(total, 30)
+        self.assertLess(total, 45)
 
         start = time.time()
         self.test_aligner_should_detect_insertions(sequence_length=1000)
         total = time.time() - start
-        self.assertLess(total, 30)
+        self.assertLess(total, 45)
 
         start = time.time()
         self.test_aligner_should_detect_deletions(sequence_length=1000)
         total = time.time() - start
-        self.assertLess(total, 30)
+        self.assertLess(total, 45)
 
     @unittest.skip('Not implemented at this moment. Requires RPy bindings.')
     def test_aligner_should_give_same_results_as_biostrings(self):

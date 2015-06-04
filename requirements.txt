@@ -1,4 +1,6 @@
 numpy
 docopt
+nose
 coverage
+coveralls
 codecov
