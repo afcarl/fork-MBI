@@ -10,6 +10,7 @@ import string
 import shlex
 import sys
 import inspect
+import locale
 
 from src import aligner
 
@@ -156,7 +157,7 @@ class TestAligner(unittest.TestCase):
             raise e
 
     def _parse_CLI_output(self, out):
-        out = out.split('\n')
+        out = out.decode(locale.getdefaultlocale()[1]).split('\n')
         score = int(out[1])
         A = out[4].strip()
         B = out[5].strip()
