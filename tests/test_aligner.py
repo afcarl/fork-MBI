@@ -10,6 +10,7 @@ import string
 import shlex
 import sys
 import inspect
+import locale
 
 from src import aligner
 
@@ -148,11 +149,15 @@ class TestAligner(unittest.TestCase):
         raise NotImplementedError()
 
     def _run_CLI(self, args):
-        path = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe()))) + '/../src/aligner.py '
-        return subprocess.check_output([sys.executable] + [path] + shlex.split(args), stderr=subprocess.STDOUT, env=os.environ.copy())
+        path = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe()))) + '/../src/aligner.py'
+        try:
+            return subprocess.check_output([sys.executable] + [path] + shlex.split(args), stderr=subprocess.STDOUT, env=os.environ.copy())
+        except subprocess.CalledProcessError as e:
+            print(e.output)
+            raise e
 
     def _parse_CLI_output(self, out):
-        out = out.split('\n')
+        out = out.decode(locale.getdefaultlocale()[1]).split('\n')
         score = int(out[1])
         A = out[4].strip()
         B = out[5].strip()
