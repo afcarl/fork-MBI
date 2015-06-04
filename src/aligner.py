@@ -223,5 +223,7 @@ if __name__ == '__main__':
         except:
             raise ParameterError('Failed saving results to file.')
     else:
-        print('Score:\n%d' % score)
-        print('\nAligned sequences:\n', result_A, '\n', result_B)
+        print('Score:\n%d\n' % score)
+        print('Aligned sequences:')
+        print(result_A)
+        print(result_B)
