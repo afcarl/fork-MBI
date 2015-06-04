@@ -149,7 +149,10 @@ class TestAligner(unittest.TestCase):
 
     def _run_CLI(self, args):
         path = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe()))) + '/../src/aligner.py '
-        return subprocess.check_output([sys.executable] + [path] + shlex.split(args), stderr=subprocess.STDOUT, env=os.environ.copy())
+        try:
+            return subprocess.check_output([sys.executable] + [path] + shlex.split(args), stderr=subprocess.STDOUT, env=os.environ.copy())
+        except subprocess.CalledProcessError as e:
+            print e.output
 
     def _parse_CLI_output(self, out):
         out = out.split('\n')
