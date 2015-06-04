@@ -148,11 +148,12 @@ class TestAligner(unittest.TestCase):
         raise NotImplementedError()
 
     def _run_CLI(self, args):
-        path = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe()))) + '/../src/aligner.py '
+        path = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe()))) + '/../src/aligner.py'
         try:
             return subprocess.check_output([sys.executable] + [path] + shlex.split(args), stderr=subprocess.STDOUT, env=os.environ.copy())
         except subprocess.CalledProcessError as e:
             print e.output
+            raise e
 
     def _parse_CLI_output(self, out):
         out = out.split('\n')
