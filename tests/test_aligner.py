@@ -9,6 +9,7 @@ import os
 import string
 import shlex
 import sys
+import inspect
 
 from src import aligner
 
@@ -30,9 +31,6 @@ class TestAligner(unittest.TestCase):
         score, A, B = aligner.align('CGTGAATTCAT', 'GACTTAC', 'SW', {'match': 5, 'mismatch': -3, 'indel': -4})
         self.assertEqual(score, 18)
         self.assertIn((A, B), [('GAATTCA', 'GACTT-A'), ('GAATT-C', 'GACTTAC')])
-
-    def test_aligner_should_provide_Altschul_Erickson_algorithm(self):
-        raise NotImplementedError()
 
     def test_aligner_should_provide_Gotoh_algorithm(self):
         score, A, B = aligner.align('ACACACTA', 'AGCACACA', 'GL', {'match': 2, 'mismatch': -1, 'indel': -1})
@@ -124,7 +122,7 @@ class TestAligner(unittest.TestCase):
         score, _, _ = aligner.align(''.join(A), ''.join(B), None, {'match': 1, 'mismatch': -100, 'indel': -1})
         self.assertEqual(score, sequence_length + insertion_count + insertion_count * -2) # Insertions also increase total sequence length
 
-    @unittest.skip('Skipping long tests.')
+    #@unittest.skip('Skipping long tests.')
     def test_aligner_should_work_on_long_sequences(self):
         start = time.time()
         self.test_aligner_should_detect_mutations(sequence_length=1000)
@@ -150,7 +148,8 @@ class TestAligner(unittest.TestCase):
         raise NotImplementedError()
 
     def _run_CLI(self, args):
-        return subprocess.check_output([sys.executable] + shlex.split('../src/aligner.py ' + args), stderr=subprocess.STDOUT, env=os.environ.copy())
+        path = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe()))) + '/../src/aligner.py '
+        return subprocess.check_output([sys.executable] + [path] + shlex.split(args), stderr=subprocess.STDOUT, env=os.environ.copy())
 
     def _parse_CLI_output(self, out):
         out = out.split('\n')
@@ -212,7 +211,25 @@ class TestAligner(unittest.TestCase):
             os.rmdir(tmp_dir)
 
     def test_CLI_should_provide_different_algorithms(self):
-        raise NotImplementedError()
+        score, A, B = self._parse_CLI_output(self._run_CLI('--match=2 --mismatch=-1 --indel=-1 --method=SW ACACACTA AGCACACA'))
+        self.assertEqual(score, 12)
+        self.assertIn((A, B), [('A-CACACTA', 'AGCACAC-A')])
+
+        score, A, B = self._parse_CLI_output(self._run_CLI('--match=5 --mismatch=-3 --indel=-4 --method=SW CGTGAATTCAT GACTTAC'))
+        self.assertEqual(score, 18)
+        self.assertIn((A, B), [('GAATTCA', 'GACTT-A'), ('GAATT-C', 'GACTTAC')])
+
+        score, A, B = self._parse_CLI_output(self._run_CLI('--match=2 --mismatch=-1 --indel=-1 --method=GL ACACACTA AGCACACA'))
+        self.assertEqual(score, 12)
+        self.assertIn((A, B), [('A-CACACTA', 'AGCACAC-A')])
+
+        score, A, B = self._parse_CLI_output(self._run_CLI('--match=5 --mismatch=-3 --indel=-4 --method=GL CGTGAATTCAT GACTTAC'))
+        self.assertEqual(score, 18)
+        self.assertIn((A, B), [('GAATTCA', 'GACTT-A'), ('GAATT-C', 'GACTTAC')])
+
+        score, A, B = self._parse_CLI_output(self._run_CLI('--match=1 --mismatch=-1 --indel=-1 --opening=-5 --method=GG CGGTCATAC CGGAT'))
+        self.assertEqual(score, -5)
+        self.assertIn((A, B), [('CGGTCATAC', 'CGG----AT')])
 
 
 if __name__ == '__main__':

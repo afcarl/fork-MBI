@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
-"""Example of sequence alignment using Gotoh and Altschul-Erickson methods.
+"""Example of sequence alignment using various methods.
 
-Uses Needleman–Wunsch [#NW]_, Smith-Waterman [#SW]_, Gotoh [#G]_, and Altschul-Erickson [#AE]_
+Uses Needleman–Wunsch [#NW]_, Smith-Waterman [#SW]_, and Gotoh [#G]_
 algorithms for sequence alignment.
 
 .. [#NW] `A general method applicable to the search for similarities in the amino acid sequence of two proteins
           <http://dx.doi.org/10.1016%2F0022-2836%2870%2990057-4>`_.
-.. [#SW] http://dx.doi.org/10.1016%2F0022-2836%2881%2990087-5
-.. [#G] http://dx.doi.org/10.1016/0022-2836(82)90398-9
-.. [#AE] http://dx.doi.org/10.1007%2FBF02462326
+.. [#SW] `Identification of common molecular subsequences
+          <http://dx.doi.org/10.1016%2F0022-2836%2881%2990087-5>`_.
+.. [#G] `An improved algorithm for matching biological sequences
+         <http://dx.doi.org/10.1016/0022-2836(82)90398-9>`_.
 
 
 Usage:
@@ -26,11 +27,10 @@ Options:
     -i                         Loads sequences from files.
     -o FILE --output=FILE      Saves result to FILE.
     -m METHOD --method=METHOD  Selects one of the implemented alignment algorithms [default: NW]:
-                                   NW - Needleman-Wunsch,
-                                   SW - Smith-Waterman,
-                                   GL - Gotoh (local),
+                                   NW - Needleman-Wunsch (global),
+                                   SW - Smith-Waterman (local),
                                    GG - Gotoh (global),
-                                   AE - Altschul-Erickson.
+                                   GL - Gotoh (local)
 
     --match=PENALTY     Score for matching letters [default: 1].
     --mismatch=PENALTY  Score for different letters [default: -1].
@@ -51,178 +51,6 @@ class ParameterError(Exception):
     pass
 
 
-def _trace_cell(r, c, score, col_idx, row_idx, result_A, result_B):
-    """Trace arrows back to origin cell."""
-
-    A_letter = col_idx[c]
-    B_letter = row_idx[r]
-
-    if score[r, c, 1]: # horizontal arrow
-        result_A.insert(0, A_letter)
-        result_B.insert(0, '-')
-        return r, c -1
-
-    if score[r, c, 2]: # diagonal arrow
-        result_A.insert(0, A_letter)
-        result_B.insert(0, B_letter)
-        return r - 1, c - 1
-
-    if score[r, c, 3]: # vertical arrow
-        result_A.insert(0, '-')
-        result_B.insert(0, B_letter)
-        return r - 1, c
-
-
-def _init_align(A, B):
-    result_A = []
-    result_B = []
-
-    # Top row/left column (headers)
-    col_idx = ' ' + A
-    row_idx = ' ' + B
-
-    # Create a 3D score matrix with following axes:
-    #   - rows
-    #   - columns
-    #   - cell values holder: [cell score, left arrow, diagonal arrow, top arrow]
-    score = np.zeros((len(row_idx), len(col_idx), 4))
-
-    return result_A, result_B, col_idx, row_idx, score
-
-
-def _align(A, B, penalties, mode='global'):
-    result_A, result_B, col_idx, row_idx, score = _init_align(A, B)
-
-    if mode == 'global':
-        # Initialize first row/column scores
-        score[0, :, 0] = range(0, -len(col_idx), -1)
-        score[0, :, 1] = 1
-        score[:, 0, 0] = range(0, -len(row_idx), -1)
-        score[:, 0, 3] = 1
-
-    # Fill table with scores and arrows
-    def fill_cell(r, c):
-        alignment_penalty = penalties['match'] if col_idx[c] == row_idx[r] else penalties['mismatch']
-        diag = score[r - 1, c - 1, 0] + alignment_penalty
-        left = score[r, c - 1, 0] + penalties['indel']
-        top = score[r - 1, c, 0] + penalties['indel']
-
-        if mode == 'global':
-            max_score = max([diag, left, top])
-        else:
-            max_score = max([diag, left, top, 0])
-
-        score[r, c, 0] = max_score
-
-        score[r, c, 1] = 1 if left == score[r, c, 0] else 0
-        score[r, c, 2] = 1 if diag == score[r, c, 0] else 0
-        score[r, c, 3] = 1 if top == score[r, c, 0] else 0
-
-    for row in range(1, len(row_idx)):
-        for col in range(1, len(col_idx)):
-            fill_cell(row, col)
-
-    if mode == 'global':
-        row = len(row_idx) - 1
-        col = len(col_idx) - 1
-    else:
-        row, col = np.unravel_index(score[:, :, 0].argmax(), np.shape(score[:, :, 0]))
-    final_score = score[row, col, 0]
-
-    while True:
-        row, col = _trace_cell(row, col, score, col_idx, row_idx, result_A, result_B)
-        if mode == 'global':
-            if row == 0 and col == 0:
-                break
-        else:
-            if score[row, col, 0] == 0:
-                break
-
-    return final_score, ''.join(result_A), ''.join(result_B)
-
-
-def align_nw(A, B, penalties):
-    """Global align sequence pair using Needleman-Wunsch algorithm."""
-
-    return _align(A, B, penalties, 'global')
-
-
-def align_sw(A, B, penalties):
-    """Local align sequence pair using Smith-Waterman algorithm."""
-
-    return _align(A, B, penalties, 'local')
-
-
-def align_g(A, B, penalties, mode='global'):
-    """Align sequence pair using Gotoh algorithm with support for exlicit gap opening penalty."""
-
-    result_A, result_B, col_idx, row_idx, score = _init_align(A, B)
-
-    if mode == 'global':
-        # Initialize first row/column scores
-        score[0, :, 0] = range(0, -len(col_idx), -1)
-        score[0, :, 1] = 1
-        score[:, 0, 0] = range(0, -len(row_idx), -1)
-        score[:, 0, 3] = 1
-
-    D = np.copy(score[:, :, 0])
-    I = np.copy(score[:, :, 0])
-
-    # Fill table with scores and arrows
-    def fill_cell(r, c):
-        if r == 1:
-            I[r, c] = score[r, c - 1, 0] + penalties['gap_opening']
-        else:
-            I[r, c] = max(score[r, c - 1, 0] + penalties['gap_opening'], I[r, c - 1] + penalties['indel'])
-
-        if c == 1:
-            D[r, c] = score[r - 1, c, 0] + penalties['gap_opening']
-        else:
-            D[r, c] = max(score[r - 1, c, 0] + penalties['gap_opening'], D[r - 1, c] + penalties['indel'])
-
-        alignment_penalty = penalties['match'] if col_idx[c] == row_idx[r] else penalties['mismatch']
-        diag = score[r - 1, c - 1, 0] + alignment_penalty
-        left = I[r, c]
-        top = D[r, c]
-
-        if mode == 'global':
-            max_score = max([diag, left, top])
-        else:
-            max_score = max([diag, left, top, 0])
-        score[r, c, 0] = max_score
-
-        score[r, c, 1] = 1 if left == score[r, c, 0] else 0
-        score[r, c, 2] = 1 if diag == score[r, c, 0] else 0
-        score[r, c, 3] = 1 if top == score[r, c, 0] else 0
-
-    for row in range(1, len(row_idx)):
-        for col in range(1, len(col_idx)):
-            fill_cell(row, col)
-
-    if mode == 'global':
-        row = len(row_idx) - 1
-        col = len(col_idx) - 1
-    else:
-        row, col = np.unravel_index(score[:, :, 0].argmax(), np.shape(score[:, :, 0]))
-    final_score = score[row, col, 0]
-
-    while True:
-        row, col = _trace_cell(row, col, score, col_idx, row_idx, result_A, result_B)
-        if mode == 'global':
-            if row == 0 and col == 0:
-                break
-        else:
-            if score[row, col, 0] == 0:
-                break
-
-    return final_score, ''.join(result_A), ''.join(result_B)
-
-
-def align_ae(A, B, penalties):
-    """Align sequence pair using Altschul-Erickson algorithm."""
-    raise NotImplementedError()
-
-
 def align(A, B, method=None, penalties=None):
     """Align sequence pair using one of the selected algorithms."""
 
@@ -237,30 +65,125 @@ def align(A, B, method=None, penalties=None):
         penalties['indel']
     except KeyError:
         raise ParameterError('Malformatted penalty dictionary.')
-
     try:
         penalties['gap_opening']
     except KeyError:
         penalties['gap_opening'] = penalties['indel']
 
-    if method not in ['NW', 'SW', 'GG', 'GL', 'AE', None]:
+    if method not in ['NW', 'SW', 'GG', 'GL', None]:
         raise UnknownAlgorithmError('Unrecognized algorithm selection.')
     method = 'NW' if method is None else method
 
-    if method == 'NW':
-        return align_nw(A, B, penalties)
+    result_A = []
+    result_B = []
 
-    if method == 'SW':
-        return align_sw(A, B, penalties)
+    # Top row/left column (headers)
+    col_idx = ' ' + A
+    row_idx = ' ' + B
 
-    if method == 'GG':
-        return align_g(A, B, penalties, 'global')
+    # Create a 3D score matrix with following axes:
+    #   - rows
+    #   - columns
+    #   - cell values holder: [cell score, left arrow, diagonal arrow, top arrow]
+    score = np.zeros((len(row_idx), len(col_idx), 4))
 
-    if method == 'GL':
-        return align_g(A, B, penalties, 'local')
+    if method == 'NW' or method == 'GG':
+        # Initialize first row/column scores
+        score[0, :, 0] = range(0, -len(col_idx), -1)
+        score[0, :, 1] = 1
+        score[:, 0, 0] = range(0, -len(row_idx), -1)
+        score[:, 0, 3] = 1
 
-    if method == 'AE':
-        return align_ae(A, B, penalties)
+    if method == 'GG' or method == 'GL':
+        I = np.copy(score[:, :, 0])
+        D = np.copy(score[:, :, 0])
+
+    # Fill table with scores and arrows
+    def fill_cell(r, c):
+        match_score = penalties['match'] if col_idx[c] == row_idx[r] else penalties['mismatch']
+
+        # Needleman–Wunsch
+        if method == 'NW':
+            diag = score[r - 1, c - 1, 0] + match_score # match/mismatch
+            left = score[r, c - 1, 0] + penalties['indel'] # insertion
+            top = score[r - 1, c, 0] + penalties['indel'] # deletion
+            max_score = max([diag, left, top])
+
+        # Smith-Waterman
+        if method == 'SW':
+            diag = score[r - 1, c - 1, 0] + match_score # match/mismatch
+            left = score[r, c - 1, 0] + penalties['indel'] # insertion
+            for l in range(2, c + 1):
+                left = max(left, score[r, c - l, 0] + l * penalties['indel'])
+            top = score[r - 1, c, 0] + penalties['indel'] # deletion
+            for k in range(2, r + 1):
+                top = max(top, score[r - k, c, 0] + k * penalties['indel'])
+            max_score = max([diag, left, top, 0])
+
+        # Gotoh
+        if method == 'GG' or method == 'GL':
+            if r == 1:
+                I[r, c] = score[r, c - 1, 0] + penalties['gap_opening']
+            else:
+                I[r, c] = max(score[r, c - 1, 0] + penalties['gap_opening'], I[r, c - 1] + penalties['indel'])
+            if c == 1:
+                D[r, c] = score[r - 1, c, 0] + penalties['gap_opening']
+            else:
+                D[r, c] = max(score[r - 1, c, 0] + penalties['gap_opening'], D[r - 1, c] + penalties['indel'])
+            diag = score[r - 1, c - 1, 0] + match_score # match/mismatch
+            left = I[r, c] # insertion
+            top = D[r, c] # deletion
+        if method == 'GG':
+            max_score = max([diag, left, top])
+        if method == 'GL':
+            max_score = max([diag, left, top, 0])
+
+        score[r, c, 0] = max_score
+
+        score[r, c, 1] = 1 if left == score[r, c, 0] else 0
+        score[r, c, 2] = 1 if diag == score[r, c, 0] else 0
+        score[r, c, 3] = 1 if top == score[r, c, 0] else 0
+
+    for row in range(1, len(row_idx)):
+        for col in range(1, len(col_idx)):
+            fill_cell(row, col)
+
+    if method == 'NW' or method == 'GG':
+        row = len(row_idx) - 1
+        col = len(col_idx) - 1
+    if method == 'SW' or method == 'GL':
+        row, col = np.unravel_index(score[:, :, 0].argmax(), np.shape(score[:, :, 0]))
+    final_score = score[row, col, 0]
+
+    def trace_cell(r, c):
+        A_letter = col_idx[c]
+        B_letter = row_idx[r]
+
+        if score[r, c, 1]: # horizontal arrow
+            result_A.insert(0, A_letter)
+            result_B.insert(0, '-')
+            return r, c -1
+
+        if score[r, c, 2]: # diagonal arrow
+            result_A.insert(0, A_letter)
+            result_B.insert(0, B_letter)
+            return r - 1, c - 1
+
+        if score[r, c, 3]: # vertical arrow
+            result_A.insert(0, '-')
+            result_B.insert(0, B_letter)
+            return r - 1, c
+
+    while True:
+        row, col = trace_cell(row, col)
+        if method == 'NW' or method == 'GG':
+            if row == 0 and col == 0:
+                break
+        if method == 'SW' or method == 'GL':
+            if score[row, col, 0] == 0:
+                break
+
+    return final_score, ''.join(result_A), ''.join(result_B)
 
 
 if __name__ == '__main__':
@@ -285,8 +208,11 @@ if __name__ == '__main__':
     penalties = {
         'match': int(arguments['--match']),
         'mismatch': int(arguments['--mismatch']),
-        'indel': int(arguments['--indel'])
+        'indel': int(arguments['--indel']),
     }
+
+    if arguments['--opening'] is not None:
+        penalties['gap_opening'] = int(arguments['--opening'])
 
     score, result_A, result_B = align(A, B, method, penalties)
 
