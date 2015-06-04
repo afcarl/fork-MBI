@@ -54,8 +54,12 @@ class ParameterError(Exception):
 def align(A, B, method=None, penalties=None):
     """Align sequence pair using one of the selected algorithms."""
 
-    if not (isinstance(A, basestring) and isinstance(B, basestring)):
-        raise ParameterError('Sequence provided is not a string.')
+    try:
+        if not (isinstance(A, basestring) and isinstance(B, basestring)):
+            raise ParameterError('Sequence provided is not a string.')
+    except NameError:
+        if not (isinstance(A, str) and isinstance(B, str)):
+            raise ParameterError('Sequence provided is not a string.')
 
     if penalties is None:
         penalties = {'match': 1, 'mismatch': -1, 'indel': -1} # default N-W scoring
