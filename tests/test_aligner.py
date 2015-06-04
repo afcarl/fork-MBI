@@ -152,7 +152,7 @@ class TestAligner(unittest.TestCase):
         try:
             return subprocess.check_output([sys.executable] + [path] + shlex.split(args), stderr=subprocess.STDOUT, env=os.environ.copy())
         except subprocess.CalledProcessError as e:
-            print e.output
+            print(e.output)
             raise e
 
     def _parse_CLI_output(self, out):
